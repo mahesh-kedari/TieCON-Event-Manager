@@ -1,11 +1,11 @@
 const functions = require('firebase-functions');
 var admin = require("firebase-admin");
 const nodemailer = require('nodemailer');
-var serviceAccount = require('./tie-app.json');
+var serviceAccount = require('./tiecon-pune-production.json');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://tie-con-management.firebaseio.com'
+    databaseURL: 'https://TiECON-Pune.firebaseio.com'
 });
 
 const mailTransport = nodemailer.createTransport({
