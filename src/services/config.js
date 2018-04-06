@@ -3,10 +3,10 @@ import 'firebase/firestore';
 
 export const firebaseConfig = {
     apiKey: "AIzaSyAuFLKp-auhYOpzOyerwIF6jar6bITZf1Q",
-    authDomain: "TiECON-Pune.firebaseapp.com",
-    databaseURL: "https://TiECON-Pune.firebaseio.com",
-    projectId: "TiECON-Pune",
-    storageBucket: "TiECON-Pune.appspot.com",
+    authDomain: "tiecon-pune.firebaseapp.com",
+    databaseURL: "https://tiecon-pune.firebaseio.com",
+    projectId: "tiecon-pune",
+    storageBucket: "tiecon-pune.appspot.com",
     messagingSenderId: "1055109214488"
 } // from Firebase Console
 

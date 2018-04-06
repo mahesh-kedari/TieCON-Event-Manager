@@ -5,7 +5,7 @@ var serviceAccount = require('./tiecon-pune-production.json');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://TiECON-Pune.firebaseio.com'
+    databaseURL: 'https://tiecon-pune.firebaseio.com'
 });
 
 const mailTransport = nodemailer.createTransport({
