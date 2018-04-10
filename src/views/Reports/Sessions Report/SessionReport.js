@@ -127,30 +127,32 @@ class HighchartsDrilldown extends Component {
                         
                             for(var i = 0; i < attendeeList.length; i++)
                             {
-                                
-                                for(var p = 0; p < attendeeList[i].attendees.profileServices.length; p++)
+                                if(attendeeList[i].attendees.profileServices != undefined)
                                 {
-                                    
-                                    if(attendanceList[j].attendances.userId  == attendeeList[i].attendeeIDs  &&                                         
-                                      profileList[m].profiles.profileName == attendeeList[i].attendees.profileServices[p])
+                                    for(var p = 0; p < attendeeList[i].attendees.profileServices.length; p++)
                                     {
-
-                                        for(var l=0; l < profileData.length; l++ )   
+                                        
+                                        if(attendanceList[j].attendances.userId  == attendeeList[i].attendeeIDs  &&                                         
+                                        profileList[m].profiles.profileName == attendeeList[i].attendees.profileServices[p])
                                         {
-                                            if(sessionsData[t][0] == profileData[l].name)
+
+                                            for(var l=0; l < profileData.length; l++ )   
                                             {
-                                                for(var u=0; u < profileData[l].data.length; u++ )
+                                                if(sessionsData[t][0] == profileData[l].name)
                                                 {
-                                                    if(profileData[l].data[u][0] == profileList[m].profiles.profileName)
+                                                    for(var u=0; u < profileData[l].data.length; u++ )
                                                     {
-                                                        profileData[l].data[u][1] =  profileData[l].data[u][1] + 1;
-                                                    } 
+                                                        if(profileData[l].data[u][0] == profileList[m].profiles.profileName)
+                                                        {
+                                                            profileData[l].data[u][1] =  profileData[l].data[u][1] + 1;
+                                                        } 
+                                                    }
                                                 }
                                             }
+                                        
                                         }
-                                       
                                     }
-                                }
+                                }    
                             }  
                         }
                     }

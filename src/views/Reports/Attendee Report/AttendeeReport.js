@@ -58,56 +58,59 @@ class AttendeeReport extends Component{
                 else if(attendees[i].intent == 'Looking For Investment'){
                     lookingForInvestmentCount = lookingForInvestmentCount + 1;
                 }
-                // This loop for get attendees multiple profiles count
-                for(var j = 0; j < attendees[i].profileServices.length; j++){
-                    // This loop for check actual profiles
-                    for (var k = 0; k < profileList.length; k++) {
-                        // This condition for check/match actual profiles with attendee profiles
-                        if(profileList[k].profiles.profileName == attendees[i].profileServices[j]){
+                
+                if(attendees[i].profileServices != undefined){
+                    // This loop for get attendees multiple profiles count
+                    for(var j = 0; j < attendees[i].profileServices.length; j++){
+                        // This loop for check actual profiles
+                        for (var k = 0; k < profileList.length; k++) {
+                            // This condition for check/match actual profiles with attendee profiles
+                            if(profileList[k].profiles.profileName == attendees[i].profileServices[j]){
 
-                            if(attendees[i].profileServices[j] == 'Admin'){
-                                adminCount = adminCount + 1;
-                                break;
-                            }
-                            else if(attendees[i].profileServices[j] == 'Attendee'){
-                                attendeeCount = attendeeCount + 1;
-                                break;
-                            }
-                            else if(attendees[i].profileServices[j] == 'Charter Member'){
-                                charterMemberCount = charterMemberCount + 1;
-                                break;
-                            }
-                            else if(attendees[i].profileServices[j] == 'Delegates'){
-                                delegatesCount = delegatesCount + 1;
-                                break;
-                            }
-                            else if(attendees[i].profileServices[j] == 'Eco System Partner'){
-                                ecoSystemCount = ecoSystemCount + 1;
-                                break;
-                            }
-                            else if(attendees[i].profileServices[j] == 'Guest'){
-                                guestCount = guestCount + 1;
-                                break;
-                            }
-                            else if(attendees[i].profileServices[j] == 'Media'){
-                                mediaCount = mediaCount + 1;
-                                break;
-                            }
-                            else if(attendees[i].profileServices[j] == 'Organizing Committee'){
-                                organizingCommitteeCount = organizingCommitteeCount + 1;
-                                break;
-                            }
-                            else if(attendees[i].profileServices[j] == 'Sponsor'){
-                                sponsorCount = sponsorCount + 1;
-                                break;
-                            }
-                            else if(attendees[i].profileServices[j] == 'Speaker'){
-                                speakerCount = speakerCount + 1;
-                                break;
-                            }
-                            else if(attendees[i].profileServices[j] == 'Volunteer'){
-                                volunteerCount = volunteerCount + 1;
-                                break;
+                                if(attendees[i].profileServices[j] == 'Admin'){
+                                    adminCount = adminCount + 1;
+                                    break;
+                                }
+                                else if(attendees[i].profileServices[j] == 'Attendee'){
+                                    attendeeCount = attendeeCount + 1;
+                                    break;
+                                }
+                                else if(attendees[i].profileServices[j] == 'Charter Member'){
+                                    charterMemberCount = charterMemberCount + 1;
+                                    break;
+                                }
+                                else if(attendees[i].profileServices[j] == 'Delegates'){
+                                    delegatesCount = delegatesCount + 1;
+                                    break;
+                                }
+                                else if(attendees[i].profileServices[j] == 'Eco System Partner'){
+                                    ecoSystemCount = ecoSystemCount + 1;
+                                    break;
+                                }
+                                else if(attendees[i].profileServices[j] == 'Guest'){
+                                    guestCount = guestCount + 1;
+                                    break;
+                                }
+                                else if(attendees[i].profileServices[j] == 'Media'){
+                                    mediaCount = mediaCount + 1;
+                                    break;
+                                }
+                                else if(attendees[i].profileServices[j] == 'Organizing Committee'){
+                                    organizingCommitteeCount = organizingCommitteeCount + 1;
+                                    break;
+                                }
+                                else if(attendees[i].profileServices[j] == 'Sponsor'){
+                                    sponsorCount = sponsorCount + 1;
+                                    break;
+                                }
+                                else if(attendees[i].profileServices[j] == 'Speaker'){
+                                    speakerCount = speakerCount + 1;
+                                    break;
+                                }
+                                else if(attendees[i].profileServices[j] == 'Volunteer'){
+                                    volunteerCount = volunteerCount + 1;
+                                    break;
+                                }
                             }
                         }
                     }

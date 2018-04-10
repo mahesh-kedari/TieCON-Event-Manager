@@ -15,7 +15,6 @@ import {
 class RegistrationList extends Component{
     constructor(props){
         super(props);
-        var history = { history }
         this.state = {  
             users: [],        
             eventDropDown: [],
@@ -86,7 +85,7 @@ class RegistrationList extends Component{
 
     // Method For reject registration
     onRejected (e,id,ddlValue) {
-        var tempThis = this.state;
+        //var tempThis = this.state;
         this.state.users.map(function(row){
             if(row.id == id){
                 let param = [{
@@ -113,7 +112,7 @@ class RegistrationList extends Component{
                 selectFlag : false
             });
         
-            var tempThis = this.state; 
+            //var tempThis = this.state; 
             var hasSessionId = false;
             this.state.users.forEach(function (doc){
                 if (value == doc.users.sessionId){
@@ -187,7 +186,7 @@ class RegistrationList extends Component{
     }
 
     render(){
-        const { value} = this.state; 
+        const { value } = this.state; 
         const options = this.state.eventDropDown;
         let loadData  = '';
 

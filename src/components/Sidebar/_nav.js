@@ -59,6 +59,17 @@ export default {
     //   url: '/eventQuestions',
     //   icon: 'icon-note'
     // },  
+    {
+      name: 'Sponsor',
+      url: '/sponsor',
+      icon: 'icon-note'
+    },
+    {
+      name: 'About Us',
+      url: '/aboutUs',
+      icon: 'icon-note'
+    },
+
     
     {
       title: true,
