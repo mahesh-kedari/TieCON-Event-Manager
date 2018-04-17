@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import * as firebase from 'firebase';
 import 'firebase/firestore';
 import { DBUtil } from '../../../services';
+import {
+    Button, Table, Modal, ModalHeader, ModalBody, ModalFooter
+} from 'reactstrap';
 
 import drilldown from 'highcharts-drilldown';
 import Highcharts from 'highcharts';
@@ -9,21 +12,39 @@ drilldown(Highcharts);
 
 class HighchartsDrilldown extends Component {
 
+    constructor(props){
+        super(props);
+        this.state = {  
+            modelPopupFlag: false,
+            modelPopupData: [],
+            profileName: ''
+        };
+
+        this.togglePopup = this.togglePopup.bind(this);
+    }
+
+    // Method For for open model popup
+    togglePopup(e) {
+        this.setState({
+            modelPopupFlag: !this.state.modelPopupFlag
+        });
+    }
+
     componentDidMount() {
         // Veriable declartation
-        let attendeeList = [], sessionList = [], profileData=[],
+        let attendeeList = [], sessionList = [], profileData=[], profilewiseData=[],
         sessionsData = [], profileList = [], attendeeData = [], sessionsAttendeeData = [];
         var sessionWiseAttendeeCount = 0;
-
+        let comp = this;
         // Method for get all sessions data
-        DBUtil.getDocRef("Sessions")
-        .get().then((snapshot) => {
-            let sessionIDs = [], sessions = [];
-            snapshot.forEach(function (doc) {
-                sessionList.push({
-                    sessionIDs: doc.id,
-                    sessions: doc.data()
-                });
+        DBUtil.addChangeListener("Sessions", function (objectList) {
+            objectList.forEach(function (doc) {
+                if (doc.data().sessionType != 'break'){
+                    sessionList.push({
+                        sessionIDs: doc.id,
+                        sessions: doc.data()
+                    });
+                }
             });
         });
       
@@ -73,7 +94,7 @@ class HighchartsDrilldown extends Component {
                 }
                 sessionsData.push([sessionList[k].sessions.eventName,sessionWiseAttendeeCount,sessionList[k].sessionIDs]);
             }
-
+         
             let arrayOfSessions = [{}];
             // Map function for set sessions data to session data set
             let sessionDataSet = sessionsData.map(function(row){
@@ -90,20 +111,55 @@ class HighchartsDrilldown extends Component {
                 "colorByPoint": true,  
                 "data": sessionDataSet
             }]
-            
+
             // Loop for pre-define sessions attendee data for drilldown 
             for(var t = 0 ; t < sessionsData.length; t++)
             {
                 let profileArray =[];
                 for(var m = 0; m < profileList.length; m++)
                 {
-                    profileArray.push([profileList[m].profiles.profileName,0])
+                    profileArray.push([profileList[m].profiles.profileName,0,[]])
                 }
 
                 sessionsAttendeeData.push([{
                     "name": sessionsData[t][0],
                     "id": sessionsData[t][0],  
-                    "data": profileArray
+                    "data": profileArray,
+                    "point": {
+                        // Event for show all user name by session-wise profiles.
+                        events: { 
+                            click: function(e) {
+                                profilewiseData = [];
+                                for(var i = 0; i< profileData.length; i++ ){
+                                    for(var j = 0; j < profileData[i].data.length; j++){
+                                        if(profileData[i].name == e.point.series.chart.ddDupes[0])
+                                        {
+                                            if(profileData[i].data[j][0] == e.point.name){
+                                                profilewiseData.push(profileData[i].data[j][2])
+                                            }
+                                        }
+                                    }
+                                }
+                             
+                                if (comp.state.modelPopupFlag == false){
+                                    this.SessionName = e.point.name + " Details";
+                                    this.modelPopup = profilewiseData[0].map(function(row,index){
+                                        let tdResponse = <span>{row}</span>
+                                        return <tr key ={index}>
+                                                    <td>
+                                                        {tdResponse}
+                                                    </td>
+                                                </tr>
+                                    },this);
+                                    comp.setState({
+                                        modelPopupFlag: !comp.modelPopupFlag,
+                                        modelPopupData: this.modelPopup,
+                                        profileName: this.SessionName
+                                    }); 
+                                }
+                            }
+                        } 
+                    }
                 }])
             }
           
@@ -145,6 +201,7 @@ class HighchartsDrilldown extends Component {
                                                         if(profileData[l].data[u][0] == profileList[m].profiles.profileName)
                                                         {
                                                             profileData[l].data[u][1] =  profileData[l].data[u][1] + 1;
+                                                            profileData[l].data[u][2].push(attendeeList[i].attendees.firstName + ' ' + attendeeList[i].attendees.lastName);
                                                         } 
                                                     }
                                                 }
@@ -171,8 +228,9 @@ class HighchartsDrilldown extends Component {
                     type: 'category'
                 },
                 yAxis: {
+                    allowDecimals: false,
                     title: {
-                        text: 'Total percent'
+                        text: 'Attendee counts'
                     }
                 },
                 legend: {
@@ -183,13 +241,13 @@ class HighchartsDrilldown extends Component {
                         borderWidth: 0,
                         dataLabels: {
                             enabled: true,
-                            format: '{point.y:.1f}%'
+                            format: '{point.y:.0f}'
                         }
                     }
                 },
                 tooltip: {
                     headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-                    pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
+                    pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.0f}</b> of total<br/>'
                 },
                 "series": allSessionData,
                 "drilldown":{
@@ -203,9 +261,32 @@ class HighchartsDrilldown extends Component {
         }
     }
     render() {
+        var currentState = this.state;
         return (
-        <div id="container">
-        </div>
+            <div>
+                <div id="container">
+                </div>
+
+                <Modal isOpen={this.state.modelPopupFlag} toggle={this.togglePopup}
+                        className={'modal-primary ' + this.props.className}>
+                    <ModalHeader toggle={this.togglePopup} className="userResponseModalHead">{currentState.profileName}</ModalHeader>
+                    <ModalBody>
+                            <Table responsive>
+                                <thead>
+                                    <tr>
+                                        <th>Attendee Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {currentState.modelPopupData} 
+                                </tbody>
+                            </Table>
+                    </ModalBody>
+                    <ModalFooter>
+                         <Button color="secondary" onClick={this.togglePopup}>Cancel</Button>
+                    </ModalFooter>
+                </Modal>  
+            </div>
         );
     }
 }

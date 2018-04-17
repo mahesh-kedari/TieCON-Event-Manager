@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "bootstrap": "4.0.0",
+    "bootstrap-table": "^1.12.1",
     "chart.js": "2.7.1",
     "firebase": "^4.10.1",
     "flag-icon-css": "2.9.0",
@@ -45,6 +46,7 @@
     "react": "16.2.0",
     "react-avatar": "^2.5.1",
     "react-big-calendar": "^0.18.0",
+    "react-bootstrap-table": "^4.3.1",
     "react-chartjs-2": "2.7.0",
     "react-dom": "16.2.0",
     "react-intl": "^2.4.0",
@@ -57,6 +59,7 @@
     "react-transition-group": "2.2.1",
     "reactstrap": "5.0.0-beta",
     "redux-firestore": "^0.3.2",
+    "save": "^2.3.2",
     "simple-line-icons": "2.4.1"
   },
   "scripts": {

@@ -107,7 +107,7 @@ input[type="radio"], input[type="checkbox"] {
 .rollnameHelpBlock{
     margin-top: 0;
 }
-.app-footer {
+.app-footer ,.app-footerQue {
     font-size: 13px;
     font-weight: 500;
     border-top: 1px solid #ddd!important;

@@ -20,8 +20,8 @@ class QuestionsForm extends Component {
         this.state = {
             Forms: [],  //stores all available forms
             FormID: [],   //form name( doc name in firestore)
-            formValueId: props.sessionId,     //Id of the current form 
-            formValue : props.sessionName, // name of the current form 
+            //formValueId: props.sessionId,     //Id of the current form 
+            //formValue : props.sessionName, // name of the current form 
             CurrentForm: [],    //Current form questions data
             QueAns: [],///Question and Answer data after  filling form
             OptionalCurrentArray: []
@@ -191,6 +191,31 @@ class QuestionsForm extends Component {
                                 <Input className="form-check-input" type="radio" id={id} name="inline-radios" value="option3" />
                                 <Input type="text" placeholder="Add Choice" id={id} name="4" onChange={(event) => this.onAdditionofFeilds(event, id)} />
                             </FormGroup>
+                            <FormGroup check inline>
+                                <Input className="form-check-input" type="radio" id={id} name="inline-radios" value="option3" />
+                                <Input type="text" placeholder="Add Choice" id={id} name="5" onChange={(event) => this.onAdditionofFeilds(event, id)} />
+                            </FormGroup>
+                            <FormGroup check inline>
+                                <Input className="form-check-input" type="radio" id={id} name="inline-radios" value="option3" />
+                                <Input type="text" placeholder="Add Choice" id={id} name="6" onChange={(event) => this.onAdditionofFeilds(event, id)} />
+                            </FormGroup>
+                            <FormGroup check inline>
+                                <Input className="form-check-input" type="radio" id={id} name="inline-radios" value="option3" />
+                                <Input type="text" placeholder="Add Choice" id={id} name="7" onChange={(event) => this.onAdditionofFeilds(event, id)} />
+                            </FormGroup>
+                            <FormGroup check inline>
+                                <Input className="form-check-input" type="radio" id={id} name="inline-radios" value="option3" />
+                                <Input type="text" placeholder="Add Choice" id={id} name="8" onChange={(event) => this.onAdditionofFeilds(event, id)} />
+                            </FormGroup>
+                            <FormGroup check inline>
+                                <Input className="form-check-input" type="radio" id={id} name="inline-radios" value="option3" />
+                                <Input type="text" placeholder="Add Choice" id={id} name="9" onChange={(event) => this.onAdditionofFeilds(event, id)} />
+                            </FormGroup>
+                            <FormGroup check inline>
+                                <Input className="form-check-input" type="radio" id={id} name="inline-radios" value="option3" />
+                                <Input type="text" placeholder="Add Choice" id={id} name="10" onChange={(event) => this.onAdditionofFeilds(event, id)} />
+                            </FormGroup>
+
                         </Col>
                     </FormGroup>
                 </div>
@@ -252,6 +277,44 @@ class QuestionsForm extends Component {
                                 </Label>
                                 <Input type="text" placeholder="Add value" id={id} name="4" onChange={(event) => this.onAdditionofFeilds(event, id)} />
                             </FormGroup>
+
+                            <FormGroup check inline>
+                                <Label check>
+                                    <Input type="checkbox" id={id} />
+                                </Label>
+                                <Input type="text" placeholder="Add value" id={id} name="5" onChange={(event) => this.onAdditionofFeilds(event, id)} />
+                            </FormGroup>
+                            <FormGroup check inline>
+                                <Label check>
+                                    <Input type="checkbox" id={id} />
+                                </Label>
+                                <Input type="text" placeholder="Add value" id={id} name="6" onChange={(event) => this.onAdditionofFeilds(event, id)} />
+                            </FormGroup>
+                            <FormGroup check inline>
+                                <Label check>
+                                    <Input type="checkbox" id={id} />
+                                </Label>
+                                <Input type="text" placeholder="Add value" id={id} name="7" onChange={(event) => this.onAdditionofFeilds(event, id)} />
+                            </FormGroup>
+                            <FormGroup check inline>
+                                <Label check>
+                                    <Input type="checkbox" id={id} />
+                                </Label>
+                                <Input type="text" placeholder="Add value" id={id} name="8" onChange={(event) => this.onAdditionofFeilds(event, id)} />
+                            </FormGroup>
+                            <FormGroup check inline>
+                                <Label check>
+                                    <Input type="checkbox" id={id} />
+                                </Label>
+                                <Input type="text" placeholder="Add value" id={id} name="9" onChange={(event) => this.onAdditionofFeilds(event, id)} />
+                            </FormGroup>
+                            <FormGroup check inline>
+                                <Label check>
+                                    <Input type="checkbox" id={id} />
+                                </Label>
+                                <Input type="text" placeholder="Add value" id={id} name="10" onChange={(event) => this.onAdditionofFeilds(event, id)} />
+                            </FormGroup>
+
                         </Col>
                     </FormGroup>
                 </div></div>
@@ -344,13 +407,11 @@ class QuestionsForm extends Component {
         //   this.HandleValidations();
 
         let invalid = this.HandleValidations();
-        if (this.state.formValue && invalid == false) {
+        // if (this.state.formValue && invalid == false) {
             let componentRef = this;
             let tableName = "QuestionsForm";
-            let docName = this.state.formValueId;
-            let sessionname = this.state.formValue;
+            let docName = "feedbackForm";
             let doc = {
-                SessionName :sessionname,
                 Questions: this.state.OptionalCurrentArray
             }
             DBUtil.addDoc(tableName, docName, doc, function () {          //add doc to firebase
@@ -362,11 +423,11 @@ class QuestionsForm extends Component {
                 function (err) {
                     console.log('Error', err);
                 });
-        }
-        else {
-            this.InvalidMessage = "*Please Fill the blank fields !";
-            return this.InvalidMessage;
-        }
+        // }
+        // else {
+        //     this.InvalidMessage = "*Please Fill the blank fields !";
+        //     return this.InvalidMessage;
+        // }
     }
     render() {
         const { Form, formValue } = this.state;

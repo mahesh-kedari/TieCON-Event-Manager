@@ -25,7 +25,6 @@ class Registration extends Component {
         contactNo: '',
         address: '',
         profileServices: [],
-        isAttendance: false,
         registrationType: '',
         briefInfo: '',
         info: '',
@@ -34,74 +33,72 @@ class Registration extends Component {
         linkedInURL: '',
         roleName: ''
       },
-      intent: '',
       submitted: false,
       invalidEmail: false,
       invalidContact: false,
+      invalidProfile: false,
       emailError: '',
       contactError: '',
       profileDropDown: [],
       attendeeId: '',
       attendeeLabel: '',
-      counter: ''
+      counter: '',
+      attendeeCountId: '',
+      delCount: '',
+      totalCount: '',
+      updateflag: false
     };
     this.changeFunction = this.changeFunction.bind(this);
     this.submitFunction = this.submitFunction.bind(this);
     this.updateFunction = this.updateFunction.bind(this);
     this.resetField = this.resetField.bind(this);
-    this.onGenerateQRcode = this.onGenerateQRcode.bind(this);
-    this.openWin = this.openWin.bind(this);
     this.onHandleValidations = this.onHandleValidations.bind(this);
     this.handleSelectChange = this.handleSelectChange.bind(this);
-    this.toggleChange = this.toggleChange.bind(this);
-    this.onChangeIntentField = this.onChangeIntentField.bind(this);
     this.setInputToAlphabets = this.setInputToAlphabets.bind(this);
     this.setInputToNumeric = this.setInputToNumeric.bind(this);
     this.bulkUpload = this.bulkUpload.bind(this);
     this.checkPreviuosCount = this.checkPreviuosCount.bind(this);
     this.createAttendee = this.createAttendee.bind(this);
+    this.updateCount = this.updateCount.bind(this);
   }
 
   // Method For render/set default profile data
   componentWillMount() {
     let thisRef = this;
-     if (this.props.match.params.id != undefined)
-     {
-        var docRef =  DBUtil.getDocRef("Attendee").doc(this.props.match.params.id);
-        docRef.get().then(function(doc) {
-          if (doc.exists)
-          {
-              let attendeeData = doc.data();
-              thisRef.setState({
-                user: {
-                  id: doc.id,
-                  firstName: attendeeData.firstName,
-                  lastName: attendeeData.lastName,
-                  email: attendeeData.email,
-                  contactNo: attendeeData.contactNo,
-                  profileServices: attendeeData.profileServices,
-                  isAttendance: attendeeData.isAttendance,
-                  address: attendeeData.address,
-                  briefInfo: attendeeData.briefInfo,
-                  info: attendeeData.info,
-                  profileImageURL: attendeeData.profileImageURL,
-                  linkedInURL: attendeeData.linkedInURL
-                },
-                intent: attendeeData.intent
-              });
-              thisRef.setState({ value:attendeeData.profileServices});
-          } 
-          else {
-              toast.error("Invalid data.", {
-                position: toast.POSITION.BOTTOM_RIGHT,
-              });
-          }
-        }).catch(function(error) {
-            toast.error("Invalid data.", {
-              position: toast.POSITION.BOTTOM_RIGHT,
-            });
+    if (this.props.match.params.id != undefined) {
+      this.setState({ updateflag: true })
+      var docRef = DBUtil.getDocRef("Attendee").doc(this.props.match.params.id);
+      docRef.get().then(function (doc) {
+        if (doc.exists) {
+          let attendeeData = doc.data();
+          thisRef.setState({
+            user: {
+              id: doc.id,
+              firstName: attendeeData.firstName,
+              lastName: attendeeData.lastName,
+              email: attendeeData.email,
+              contactNo: attendeeData.contactNo,
+              profileServices: attendeeData.profileServices,
+              address: attendeeData.address,
+              briefInfo: attendeeData.briefInfo,
+              info: attendeeData.info,
+              profileImageURL: attendeeData.profileImageURL,
+              linkedInURL: attendeeData.linkedInURL
+            },
+          });
+          thisRef.setState({ value: attendeeData.profileServices });
+        }
+        else {
+          toast.error("Invalid data.", {
+            position: toast.POSITION.BOTTOM_RIGHT,
+          });
+        }
+      }).catch(function (error) {
+        toast.error("Invalid data.", {
+          position: toast.POSITION.BOTTOM_RIGHT,
         });
-     }   
+      });
+    }
 
     let componentRef = this;
     DBUtil.addChangeListener("UserProfiles", function (objectList) {
@@ -190,132 +187,28 @@ class Registration extends Component {
     }
   }
 
-  // Method for generate QR code
-  onGenerateQRcode() {
-    const { user } = this.state;
-    let profiles = '';
-    this.onHandleValidations(user, this.state.submitted = true);
-    if (user.firstName && user.lastName && !this.state.invalidEmail && !this.state.invalidContact) {
-      let fname = user.firstName;
-      let lname = user.lastName;
-      let contactNo = user.contactNo;
-      let emailid = user.email;
-      let profileData = this.state.profileDropDown;
-      let userId = "id:" + this.state.attendeeId;
-
-      profileData.map(function (item) {
-        if (user.profileServices.length > 0) {
-          let serviceString = user.profileServices[user.profileServices.length - 1]
-          let serviceArray = serviceString.split(',');
-          for (var i = 0; i < user.profileServices.length; i++) {
-            if (item.value == serviceArray[i]) {
-              profiles += item.label + ' ,';
-              break;
-            }
-          }
-        }
-      })
-
-      let generatedQR;
-      let compRef = this;
-      let id = this.state.attendeeId;
-      QRCode.toDataURL("TIECON:" + id)
-        .then(url => {
-          generatedQR = url;
-          compRef.setState({ Qrurl: url })
-          setTimeout(() => {
-            compRef.openWin(user, profiles);
-          }, 250);
-        })
-    }
-  }
-
-  // Method for open new window of generated QR code
-  openWin(user, profiles) {
-    let attendeeLabel;
-    let attendeeCount;
-    let attendeeCode;
-    let eternuslogopath = "../../img/eternus.png";
-    attendeeLabel = this.state.attendeeLabel;
-    attendeeCount = this.state.attendeeCount - 1;
-    attendeeCode = attendeeLabel + "-" + attendeeCount;
-
-    var newWindow = window.open('', '', 'width=1000,height=1000');
-    newWindow.document.writeln("<html>");
-    newWindow.document.writeln("<body>");
-    newWindow.document.write("<div style='width:394px;height:490px;text-align:center;margin-left:0;margin-top:0;'>")
-    newWindow.document.write("<div style='height:100%;'>")
-    //layer1
-    newWindow.document.write("<div style='height:29%;'> </div>")
-    //layer2
-    newWindow.document.write("<div style='padding: 0 30px;'><h1 style='font-size: 1.8rem;font-family:'Arial';padding: 10px 0 0 0;margin: 0;margin-bottom:-10px;'>" + user.firstName + " " + user.lastName + "</h1>")
-    newWindow.document.write("<p style='margin-top:-16px;font-size: 1.2rem;font-family:'Avenir-Book';'>Eternus Solutions Pvt Ltd</p>")
-    newWindow.document.write("</div>")
-    //layer2a
-    newWindow.document.write("<div style='text-align: left;padding: 30px 30px;padding-bottom:0;margin-top:45px;'>")
-    newWindow.document.write("<img style='width:60px;height:60px;margin-left:-4px;margin-bottom:-4px;' src='" + this.state.Qrurl + "'/>")
-    newWindow.document.write("<div style='text-align:left;font-weight:bold;font-size:13px;font-family:'Arial';margin-top:-4px;padding: 0 0px;padding-right:0px;margin-left:4px;'>" + attendeeCode + "</div> <br/>")
-    newWindow.document.write("</div>")
-    //layer3
-    newWindow.document.write("<div style='border-left:1px solid #666;border-right:1px solid #666;'>")
-    newWindow.document.write("</div>")
-    newWindow.document.write("</div>")
-    newWindow.document.write("</div>")
-    newWindow.document.writeln("</body></html>");
-    newWindow.document.close();
-
-    setTimeout(function () {
-      newWindow.print();
-      newWindow.close();
-    }, 500);
-  }
-
   submitFunction(event) {
     event.preventDefault();
     let compRef = this;
     this.setState({ submitted: true });
     const { user } = this.state;
+    let attendeeLabel;
+    let profileArray = [];
+    let length = user.profileServices.length;
+    if (length) {
+      let lastElement = user.profileServices[length - 1]
+      profileArray = lastElement.split(',');
+      attendeeLabel = profileArray[0].substring(0, 3).toUpperCase();
+      compRef.setState({ attendeeLabel: attendeeLabel });
+    }
+    compRef.onHandleValidations(user);
 
-    DBUtil.getDocRef("Attendee").where("email", "==", user.email)
-    .get()
-    .then(function(querySnapshot) {
-          if(querySnapshot.docs.length == 0){
-              let profileArray = [];
-              let length = user.profileServices.length;
-              if (length) {
-                let lastElement = user.profileServices[length - 1]
-                profileArray = lastElement.split(',');
-              }
-              if(profileArray.length != 0){
-                let attendeeLabel = profileArray[0].substring(0, 3).toUpperCase();
-                compRef.setState({ attendeeLabel: attendeeLabel });
-              }
-              compRef.onHandleValidations(user);
-              setTimeout(() => {
-                compRef.checkPreviuosCount();
-              }, 50);
-              setTimeout(() => {
-                compRef.createAttendee();
-              }, 1000);
-          }
-          querySnapshot.forEach(function(doc) {
-            if(doc.data().email == user.email){
-              toast.error("Email Id already exists.", {
-                position: toast.POSITION.BOTTOM_RIGHT,
-              });
-            }
-          }
-      );
-    })
-    .catch(function(error) {
-        toast.error("User data not loaded.", {
-          position: toast.POSITION.BOTTOM_RIGHT,
-        });
-    });
+    compRef.checkPreviuosCount(attendeeLabel);
   }
 
+
   // Method for update attendee details
-  updateFunction(){
+  updateFunction() {
     let compRef = this;
     this.setState({ submitted: true });
     const { user } = this.state;
@@ -329,78 +222,15 @@ class Registration extends Component {
     let attendeeLabel = profileArray[0].substring(0, 3).toUpperCase();
     compRef.setState({ attendeeLabel: attendeeLabel });
     compRef.onHandleValidations(user);
-    compRef.checkPreviuosCount(attendeeLabel);
-    
-    if (user.firstName && user.lastName && !this.state.invalidEmail && !this.state.invalidContact) 
-    {
-        let tblAttendance = "Attendance", tblAttendee = "Attendee";
-        if (user.profileServices.length > 0) {
-          let length = user.profileServices.length;
-          let serviceString = user.profileServices[length - 1]
-          if (serviceString == "") {
-            this.state.user.profileServices = [];
-          }
-          else {
-            let serviceArray = serviceString.split(',');
-            this.state.user.profileServices = serviceArray;
-          }
-        }
-        let intentVal = '';
-        if (this.state.intent == 'Select Intent' || this.state.intent == "") {
-          intentVal = '';
-        }
-        else {
-          intentVal = this.state.intent
-        }
-
-        DBUtil.getDocRef(tblAttendee).doc(user.id).update({
-          "firstName": user.firstName,
-          "lastName": user.lastName,
-          "email": user.email,
-          "contactNo": user.contactNo,
-          "address": user.address,
-          "profileServices": user.profileServices,
-          "isAttendance": user.isAttendance,
-          "timestamp": new Date(),
-          "registrationType": 'On Spot Registration',
-          "briefInfo": user.briefInfo,
-          "info": user.info,
-          "profileImageURL": user.profileImageURL,
-          "intent": intentVal,
-          //otp
-          "linkedInURL": user.linkedInURL,
-          //"attendanceId": '',
-          //"sessionId": '',
-          "fullName": user.firstName + ' ' + user.lastName,
-          //"attendeeLabel": attendeeLabel,
-          //"attendeeCount": attendeeCount
-        }).then(function () {
-            toast.success("User updated successfully.", {
-                position: toast.POSITION.BOTTOM_RIGHT,
-            });
-            setTimeout(() => {
-              compRef.props.history.push('/attendee');     
-            }, 2000);
-        });
-    }
-  }
-
-
-  //Method for attendee creation
-  createAttendee() {
-    let attendeeCount = this.state.attendeeCount;
-    const { user } = this.state;
-    let compRef = this;
-    let attendeeLabel = this.state.attendeeLabel;
 
     if (user.firstName && user.lastName && !this.state.invalidEmail && !this.state.invalidContact) {
       let tblAttendance = "Attendance", tblAttendee = "Attendee";
-      let otpVal = Math.floor(1000 + Math.random() * 9000);
       if (user.profileServices.length > 0) {
         let length = user.profileServices.length;
         let serviceString = user.profileServices[length - 1]
         if (serviceString == "") {
           this.state.user.profileServices = [];
+          this.state.user.roleName = '';
         }
         else {
           let serviceArray = serviceString.split(',');
@@ -408,95 +238,153 @@ class Registration extends Component {
           this.state.user.roleName = serviceArray[0];
         }
       }
-      let intentVal = '';
-      if (this.state.intent == 'Select Intent' || this.state.intent == "") {
-        intentVal = '';
-      }
-      else {
-        intentVal = this.state.intent
-      }
 
-      let doc = {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        contactNo: user.contactNo,
-        address: user.address,
-        profileServices: user.profileServices,
-        isAttendance: user.isAttendance,
-        timestamp: new Date(),
-        registrationType: 'On Spot Registration',
-        briefInfo: user.briefInfo,
-        info: user.info,
-        profileImageURL: user.profileImageURL,
-        intent: intentVal,
-        otp: otpVal,
-        linkedInURL: user.linkedInURL,
-        attendanceId: '',
-        sessionId: '',
-        fullName: user.firstName + ' ' + user.lastName,
-        attendeeLabel: attendeeLabel,
-        attendeeCount: attendeeCount,
-        roleName: user.roleName
-      }
-      DBUtil.addObj(tblAttendee, doc, function (id, error) {
-        if (user.isAttendance == true) {
-          let attendanceDoc = {
-            fullName: user.firstName + ' ' + user.lastName,
-            session: {},
-            sessionId: '',
-            timestamp: new Date(),
-            userId: id
-          }
-          DBUtil.addObj(tblAttendance, attendanceDoc, function (id, error) {
-            toast.success("User registered successfully.", {
-              position: toast.POSITION.BOTTOM_RIGHT,
-            });
-          },
-            function (error) {
-              toast.error("User not registered.", {
-                position: toast.POSITION.BOTTOM_RIGHT,
-              });
-            });
+      DBUtil.getDocRef(tblAttendee).doc(user.id).update({
+        "firstName": user.firstName,
+        "lastName": user.lastName,
+        "email": user.email,
+        "contactNo": user.contactNo,
+        "address": user.address,
+        "profileServices": user.profileServices,
+        "timestamp": new Date(),
+        "registrationType": 'On Spot Registration',
+        "briefInfo": user.briefInfo,
+        "info": user.info,
+        "profileImageURL": user.profileImageURL,
+        "linkedInURL": user.linkedInURL,
+        "fullName": user.firstName + ' ' + user.lastName,
+        "roleName": user.roleName,
+        "displayName": user.firstName + " " + user.lastName,
+      }).then(function () {
+        toast.success("User updated successfully.", {
+          position: toast.POSITION.BOTTOM_RIGHT,
+        });
+        setTimeout(() => {
+          compRef.props.history.push('/attendee');
+        }, 2000);
+      });
+    }
+  }
+
+  //Method for attendee creation
+  createAttendee() {
+    let attendeeCount = this.state.attendeeCount;
+    let delCount = this.state.delCount;
+    let totalCount = this.state.totalCount;
+    const { user } = this.state;
+    let compRef = this;
+    let attendeeLabel = this.state.attendeeLabel;
+    let attendeeCountId = this.state.attendeeCountId;
+
+    if (user.firstName && user.lastName && !this.state.invalidEmail && !this.state.invalidContact) {
+      let tblAttendance = "Attendance", tblAttendee = "Attendee";
+      let randomstring = 'ES' + Math.floor(1000 + Math.random() * 9000);
+
+      if (user.profileServices.length > 0) {
+        let length = user.profileServices.length;
+        let serviceString = user.profileServices[length - 1]
+        if (serviceString == "") {
+          this.state.user.profileServices = [];
+          this.state.user.roleName = '';
         }
         else {
-          toast.success("User registered successfully.", {
+          let serviceArray = serviceString.split(',');
+          this.state.user.profileServices = serviceArray;
+          this.state.user.roleName = serviceArray[0];
+        }
+      }
+
+      fetch('https://us-central1-tie-con-management.cloudfunctions.net/registerUser', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: new Headers({
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }),
+        body: JSON.stringify(
+          {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            userEmail: user.email,
+            password: randomstring,
+            contactNo: user.contactNo,
+            roleName: user.roleName,
+            address: user.address,
+            displayName: user.firstName + " " + user.lastName,
+            fullName: user.firstName + " " + user.lastName,
+            profileServices: user.profileServices,
+            timestamp: new Date(),
+            registrationType: 'On Spot Registration',
+            briefInfo: user.briefInfo,
+            info: user.info,
+            attendeeCount: attendeeCount,
+            attendeeLabel: attendeeLabel,
+            attendanceId: '',
+            sessionId: '',
+            linkedInURL: user.linkedInURL,
+            profileImageURL: user.profileImageURL,
+          }
+        )
+      })
+        .then(response => {
+          this.updateCount(attendeeCountId, totalCount, delCount);
+          toast.success("User Registered Successfully", {
             position: toast.POSITION.BOTTOM_RIGHT,
           });
+          this.resetField();
+          setTimeout(() => {
+            this.props.history.push('/attendee');
+          }, 1000);
         }
-        compRef.setState({ attendeeId: id })
-        compRef.onGenerateQRcode();
-        setTimeout(() => {
-          compRef.resetField(true);
-        }, 500);
-      },
-        function (error) {
-          toast.error("User not registered.", {
+        ).catch(function (error) {
+          toast.error("Registration failed", {
             position: toast.POSITION.BOTTOM_RIGHT,
           });
         });
     }
   }
+
+
+  updateCount(attendeeCountId, totalCount, delCount) {
+    DBUtil.getDocRef("AttendeeCount").doc(attendeeCountId).update({
+      "totalCount": totalCount,
+      "delCount": delCount
+    }).then(function () {
+      //console.log("updated successfully");
+    })
+  }
+
   //Method to check previous count of attendee
-  checkPreviuosCount() {
+  checkPreviuosCount(attendeeLabel) {
     let compRef = this;
     let nextCount;
-
-    DBUtil.getDocRef("Attendee")
-      .onSnapshot(function (querySnapshot) {
-        var countArray = [];
-        querySnapshot.forEach(function (doc) {
-          if (doc.data().attendeeCount != undefined) {
-            countArray.push(doc.data().attendeeCount);
-          }
-        });
-        if (countArray.length) {
-          nextCount = Math.max(...countArray) + 1;
-          compRef.setState({ attendeeCount: nextCount });
-        }
-        else
-        { compRef.setState({ attendeeCount: 1000 }) }
-      })
+    var docRef = DBUtil.getDocRef("AttendeeCount");
+    docRef.get().then(function (snapshot) {
+      let totalCount;
+      let delCount;
+      let attendeeCountId;
+      snapshot.forEach(function (doc) {
+        attendeeCountId = doc.id;
+        totalCount = doc.data().totalCount;
+        delCount = doc.data().delCount;
+      });
+      if (attendeeLabel == "DEL") {
+        nextCount = delCount + 1;
+        delCount = delCount + 1;
+      }
+      else {
+        nextCount = totalCount + 1;
+        totalCount = totalCount + 1;
+      }
+      compRef.setState({
+        attendeeCount: nextCount,
+        delCount: delCount,
+        totalCount: totalCount,
+        attendeeCountId: attendeeCountId
+      });
+      compRef.createAttendee();
+    })
   }
 
   // Method for reset all fields
@@ -508,24 +396,17 @@ class Registration extends Component {
         email: '',
         contactNo: '',
         profileServices: [],
-        isAttendance: false,
         address: '',
         briefInfo: '',
         info: '',
         profileImageURL: '',
         linkedInURL: ''
       },
-      intent: 'Select Intent',
       invalidContact: false,
       invalidEmail: false,
       submitted: false
     });
     this.handleSelectChange(null);
-    if (resetFlag != true) {
-      toast.success("Registration form reset successfully.", {
-        position: toast.POSITION.BOTTOM_RIGHT,
-      });
-    }
   }
 
   // Method for select/deselect profile data
@@ -534,22 +415,6 @@ class Registration extends Component {
       this.state.user.profileServices.push(value);
     }
     this.setState({ value });
-  }
-
-  // Method for select intant value
-  onChangeIntentField(e) {
-    this.setState({
-      intent: e.target.value
-    });
-
-  }
-
-  // Method for set attendee flag
-  toggleChange() {
-    const isAttendance = 'isAttendance';
-    const user = this.state.user;
-    user[isAttendance] = !this.state.user.isAttendance;
-    this.setState({ user: user });
   }
 
   // Method for set only alphabets
@@ -569,19 +434,17 @@ class Registration extends Component {
   }
 
   render() {
-    const { user, submitted, value, intentVal } = this.state;
+    const { user, submitted, value } = this.state;
     const options = this.state.profileDropDown;
     this.headerText = '';
-    if(this.state.user.id != ''){
+    if (this.state.updateflag) {
       this.headerText = "Attendee";
       this.buttons = <Button type="submit" size="md" color="success" onClick={this.updateFunction} ><i className="icon-note"></i> Update</Button>
     }
-    else
-    {
+    else {
       this.headerText = "Registration";
       this.buttons = <Button type="submit" size="md" color="success" onClick={this.submitFunction} ><i className="icon-note"></i> Register</Button>
     }
-
     return (
       <div className="animated fadeIn">
         <Row className="justify-content-left">
@@ -623,7 +486,7 @@ class Registration extends Component {
                       <InputGroupAddon addonType="prepend">
                         <InputGroupText>@</InputGroupText>
                       </InputGroupAddon>
-                      <Input type="text" placeholder="Email" name="email" value={this.state.user.email} onChange={this.changeFunction} required />
+                      <Input type="text" disabled={this.state.updateflag} placeholder="Email" name="email" value={this.state.user.email} onChange={this.changeFunction} required />
                       {submitted && this.state.invalidEmail &&
                         <div style={{ color: "red" }} className="help-block">{this.state.emailError} </div>
                       }
@@ -650,7 +513,7 @@ class Registration extends Component {
                       <Input type="text" placeholder="Address" name="address" value={this.state.user.address} onChange={this.changeFunction} required />
                     </InputGroup>
                   </Col>
-                  <Col xs="12" md="6">
+                  <Col xs="12" md="6" className={(submitted && this.state.invalidProfile ? ' has-error' : '')}>
                     <FormGroup>
                       <Select
                         name='Profiles'
@@ -662,20 +525,10 @@ class Registration extends Component {
                         options={options}
                       />
                     </FormGroup>
+                    {submitted && this.state.invalidProfile && <div className="help-block" style={{ color: "red" }}>*Please select Speakers</div>}
                   </Col>
                 </FormGroup>
                 <FormGroup row>
-                  {/* <Col xs="12" md="6">
-                    <InputGroup className="mb-3">
-                      <Input type="select" style={{ width: 200 }} name="intent" value={this.state.intent} id='intent' placeholder="Intent" onChange={(e) => this.onChangeIntentField(e)} >
-                        <option value='Select Intent'>Select Intent</option>
-                        <option value="Mentor">Mentor</option>
-                        <option value="Mentee">Mentee</option>
-                        <option value="Investor">Investor</option>
-                        <option value="Looking For Investment">Looking For Investment</option>
-                      </Input>
-                    </InputGroup>
-                  </Col> */}
                   <Col xs="12" md="6"  >
                     <InputGroup className="mb-3">
                       <InputGroupAddon addonType="prepend">
@@ -711,19 +564,12 @@ class Registration extends Component {
                     </InputGroup>
                   </Col>
                 </FormGroup>
-                <FormGroup>
-                  <div>
-                    <Label> Mark Attendance &nbsp;
-                        <input type="checkbox" checked={this.state.user.isAttendance} onChange={this.toggleChange} />
-                    </Label>
-                  </div>
-                </FormGroup>
                 <FormGroup row>
-                  <Col xs="12" md="12"> 
-                    {this.buttons}                 
+                  <Col xs="12" md="12">
+                    {this.buttons}
                     &nbsp;&nbsp;
                     <Button onClick={this.resetField} type="reset" size="md" color="danger" ><i className="fa fa-ban"></i> Reset</Button>
-                    <ToastContainer autoClose={4000} />
+                    <ToastContainer autoClose={2000} />
                   </Col>
                 </FormGroup>
               </CardBody>

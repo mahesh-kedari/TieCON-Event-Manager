@@ -5,8 +5,7 @@ import {
   NavbarToggler,
   NavbarBrand,
 } from 'reactstrap';
-import HeaderDropdown from './HeaderDropdown';
-class Header extends Component {
+class HeaderQue extends Component {
 
   sidebarToggle(e) {
     e.preventDefault();
@@ -31,19 +30,12 @@ class Header extends Component {
   render() {
     return (
       <header className="app-header navbar">
-        <NavbarToggler className="d-lg-none" onClick={this.mobileSidebarToggle}>
-          <span className="navbar-toggler-icon"></span>
-        </NavbarToggler>
         <NavbarBrand href="#">
             <img src="../../img/eternus.png" className="logoImg" />
         </NavbarBrand>
-        <NavbarToggler className="d-md-down-none mr-auto" onClick={this.sidebarToggle}>
-          <span className="navbar-toggler-icon"></span>
-        </NavbarToggler>
-        <HeaderDropdown/>
       </header>
     );
   }
 }
 
-export default Header;
+export default HeaderQue;

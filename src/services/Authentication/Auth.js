@@ -1,27 +1,49 @@
 import { ref, firebaseAuth } from '../config'
 
-export function auth (email, pw) {
-  return firebaseAuth().createUserWithEmailAndPassword(email, pw)
-    .then(saveUser)
-}
-
-export function logout () {
-  return firebaseAuth().signOut()
-}
-
-export function login (email, pw) {
-  return firebaseAuth().signInWithEmailAndPassword(email, pw)
-}
-
-export function resetPassword (email) {
-  return firebaseAuth().sendPasswordResetEmail(email)
-}
-
-export function saveUser (user) {
-  return ref.child(`users/${user.uid}/info`)
+export class Auth {
+  constructor() {
+  }
+static addNewUser (user){
+  ref.child(`users/${user.uid}/info`)
     .set({
       email: user.email,
       uid: user.uid
+    });
+    // .then(()  => user )
+}
+
+
+  static auth(email, pwd, callbackFn, errorFn) {
+    firebaseAuth().createUserWithEmailAndPassword(email, pwd)
+      .then((response) => {
+        this.addNewUser(response);
+        callbackFn(response);
+      })
+      .catch((ex) => {
+        errorFn(ex);
+      });
+  }
+  static logOut (){
+    firebaseAuth().signOut();
+  }
+
+  static login (email, pwd, callbackFn, errorFn){
+    firebaseAuth().signInWithEmailAndPassword(email, pwd)
+    .then((response) => {
+      callbackFn(response);
     })
-    .then(() => user)
+    .catch((ex) => {
+      errorFn(ex);
+    });
+  }
+
+  static resetPassword (email, callbackFn, errorFn){
+    firebaseAuth().sendPasswordResetEmail(email)
+    .then((response) => {
+      callbackFn(response);
+    })
+    .catch((ex) => {
+      errorFn(ex);
+    });
+  }
 }

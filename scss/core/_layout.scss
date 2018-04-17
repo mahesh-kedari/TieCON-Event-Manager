@@ -86,7 +86,7 @@ app-root {
   .main, .app-footer {
     margin-left: $sidebar-width;
   }
-
+   
   &.sidebar-hidden {
     .main, .app-footer {
       margin-left: 0;
@@ -270,7 +270,7 @@ app-root {
 // Footer
 //
 .footer-fixed {
-  .app-footer {
+  .app-footer ,.app-footerQue  {
     position: fixed;
     right: 0;
     bottom: 0;
@@ -278,6 +278,15 @@ app-root {
     z-index: $zindex-sticky;
     height: $footer-height;
   }
+
+    .app-footerQue {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: $zindex-sticky;
+      height: 100px;
+    }
 
   .app-body {
     margin-bottom: $footer-height;
