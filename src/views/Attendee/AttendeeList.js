@@ -24,6 +24,7 @@ class AttendeeList extends Component {
         }
 
         this.handleSelectChange = this.handleSelectChange.bind(this);
+        this.deleteAttendee = this.deleteAttendee.bind(this);
     }
 
     // Method for get all Attendees data 
@@ -43,6 +44,18 @@ class AttendeeList extends Component {
             });
     }
 
+
+    deleteAttendee(userId) {
+        var x = confirm("Are you sure you want to delete?");
+        if (x) {
+            let compRef = this;
+            DBUtil.getDocRef("Attendee").doc(userId).delete().then(function (response) {
+                alert("Deleted Successfully");
+            });
+        }
+        else
+            return false;
+    }
     // Method for print ID card
     openWin(user) {
         let briefInfo;
@@ -120,7 +133,12 @@ class AttendeeList extends Component {
             <i className="fa fa-pencil"></i>
         </Link>
     }
-
+    onDeleteAttendee(cell, row) {
+        let componentRef = this;
+        return <Link to={this} onClick={() => componentRef.deleteAttendee(row.id)}>
+            <i class="fa fa-trash"></i>
+        </Link>
+    }
     // Method for print individual QR code
     onPrintAttendeeQRCode(cell, row) {
         let componentRef = this;
